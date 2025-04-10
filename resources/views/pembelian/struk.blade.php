@@ -44,7 +44,7 @@
                 <h5 class="mb-0 fw-bold">{{ $point_digunakan }}</h5>
             </div>
             <div>
-                <p class="mb-1 text-muted">KASIR</p>
+                <p class="mb-1 text-muted">{{ Auth::user()->name }}</p>
                 <h5 class="mb-0 fw-bold">Petugas</h5>
             </div>
             <div>
@@ -55,7 +55,7 @@
         </div>
 
         <div class="d-flex justify-content-end mt-4">
-            <button class="btn btn-primary me-2">Unduh</button>
+            <a href="{{ url('/export-pembelian-pdf/' .$data['id']) }}" class="btn btn-danger">Unduh PDF</a>
             <a href="{{ url('/pembelian') }}" class="btn btn-secondary">Kembali</a>
 
         </div>

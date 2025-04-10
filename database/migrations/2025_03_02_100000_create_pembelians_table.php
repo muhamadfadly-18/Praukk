@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('pembelians', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('id_detail_pembelian'); 
+            $table->jsonb('id_detail_pembelian'); 
             $table->dateTime('tanggal_penjualan');
             $table->integer('total_harga');
             $table->integer('total_bayar');
             $table->integer('kembalian');
+            $table->integer('id_member');
             $table->timestamps();
         
            

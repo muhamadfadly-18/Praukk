@@ -9,7 +9,7 @@ use App\Models\DetailPembelian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MembersController extends Controller
 {
@@ -47,8 +47,10 @@ class MembersController extends Controller
         $ids = is_array($data['id_produk'] ?? null) ? $data['id_produk'] : [];
         $produk = Produk::whereIn('id', $ids)->pluck('name', 'id');
         $produks = Produk::whereIn('id', $ids)->get();
+        $pembelian = Pembelian::latest()->first(['id']);
 
-        // dd($memberId);
+
+        // dd($pembelian);
     
         return view('pembelian.members', [
             'data' => $data,
@@ -57,44 +59,59 @@ class MembersController extends Controller
             'point' => $point,
             'produk' => $produk,
             'produks' => $produks,
-            'member_id' => $memberId // opsional kalau mau kirim ke Blade
+            'member_id' => $memberId,
+            'pembelian' => $pembelian
         ]);
     }
 
     
     public function struk(Request $request)
-{ 
-    // dd($request->all());
-    $data = $request->all();
-    $no_hp = $request->query('no_hp');
-    $point_digunakan = 1500;
-   
-
-    // Ambil data id_produk, qty, dan harga
-$id_produk = explode(',', $data['id_produk']); // [1, 2]
-$qty = explode(',', $data['qty']);             // [1, 2]
-$harga = explode(',', $data['harga']);         // [1111, 1221112]
-
-$produkFromDB = DB::table('produks')
-    ->whereIn('id', $id_produk)
-    ->pluck('name', 'id'); // Mengambil 'name' dengan kunci 'id'
-$produkData = [];
-foreach ($id_produk as $index => $id) {
-    $produkData[] = [
-        'name' => $produkFromDB[$id] ?? "Produk Tidak Ditemukan",
-        'harga' => (int) $harga[$index],
-        'qty' => (int) $qty[$index],
-        'sub_total' => (int) $harga[$index] * (int) $qty[$index],
-    ];
-}
-
-// Hitung total harga
-$totalHarga = array_sum(array_column($produkData, 'sub_total'));
-$totalSetelahPoin = max($totalHarga - $point_digunakan, 0);
-
-return view('pembelian.struk', compact('data', 'produkData', 'totalSetelahPoin','point_digunakan'));
-
-}
+    { 
+        $data = $request->all();
+        $no_hp = $request->query('no_hp');
+        $point_digunakan = 1500;
+    
+        // dd($data);
+        // Validasi array input
+        $id_produk = $data['id_produk'];
+        $qty = $data['qty'];
+        $harga = $data['harga'];
+    
+        // Cek kalau data dalam bentuk string (misalnya via query string), convert jadi array
+        if (!is_array($id_produk)) {
+            $id_produk = explode(',', $id_produk);
+            $qty = explode(',', $qty);
+            $harga = explode(',', $harga);
+        }
+    
+        // Ambil nama produk dari database
+        $produkFromDB = DB::table('produks')
+            ->whereIn('id', $id_produk)
+            ->pluck('name', 'id');
+    
+        // Buat array produk lengkap
+        $produkData = [];
+        foreach ($id_produk as $index => $id) {
+            $produkData[] = [
+                'name' => $produkFromDB[$id] ?? "Produk Tidak Ditemukan",
+                'harga' => (int) $harga[$index],
+                'qty' => (int) $qty[$index],
+                'sub_total' => (int) $harga[$index] * (int) $qty[$index],
+            ];
+        }
+    
+        // Hitung total dan setelah dikurangi poin
+        $totalHarga = array_sum(array_column($produkData, 'sub_total'));
+        $totalSetelahPoin = max($totalHarga - $point_digunakan, 0);
+    
+        return view('pembelian.struk', compact(
+            'data', 
+            'produkData', 
+            'totalSetelahPoin', 
+            'point_digunakan'
+        ));
+    }
+    
 
 
   public function store(Request $request)
@@ -152,29 +169,41 @@ return view('pembelian.struk', compact('data', 'produkData', 'totalSetelahPoin',
         $hargas = $request->input('harga', []);
         $totalBayar = (float) preg_replace('/[^\d]/', '', $request->input('total_bayar'));
 
-        foreach ($idProduks as $index => $produkId) {
-            $jumlah = (int) $jumlahs[$index];
-            $harga = (float) $hargas[$index];
+        $idProdukArray = [];
+$qtyArray = [];
+$hargaArray = [];
+$totalBeli = 0;
 
-            $dataProduk = Produk::find($produkId);
-            if (!$dataProduk) {
-                return response()->json(['message' => 'Produk tidak ditemukan!'], 404);
-            }
+// Loop untuk isi array saja (tanpa create DetailPembelian di dalam loop)
+foreach ($idProduks as $index => $produkId) {
+    $jumlah = (int) $jumlahs[$index];
+    $harga = (float) $hargas[$index];
 
-            $subtotal = $harga * $jumlah;
-            $totalBeli += $subtotal;
+    $dataProduk = Produk::find($produkId);
+    if (!$dataProduk) {
+        return response()->json(['message' => 'Produk tidak ditemukan!'], 404);
+    }
 
-            $detailPembelian = DetailPembelian::create([
-                'id_produk' => $produkId,
-                'qty' => $jumlah,
-                'harga' => $harga,
-            ]);
+    $subtotal = $harga * $jumlah;
+    $totalBeli += $subtotal;
 
-            $detailPembelianIds[] = $detailPembelian->id;
+    $idProdukArray[] = (string) $produkId;
+    $qtyArray[] = $jumlah;
+    $hargaArray[] = $harga;
 
-            // Update stock produk
-            $dataProduk->decrement('stock', $jumlah);
-        }
+    // Update stok
+    $dataProduk->decrement('stock', $jumlah);
+}
+
+// Sekarang buat satu baris DetailPembelian
+$detailPembelian = DetailPembelian::create([
+    'id_produk' => $idProdukArray,
+    'qty'       => $qtyArray,
+    'harga'     => $hargaArray,
+]);
+
+// Simpan ID-nya saja
+$detailPembelianId = $detailPembelian->id;
 
         // Hitung kembalian
        // Hitung kembalian
@@ -210,17 +239,27 @@ if ($usePoin) {
         $idMemberFinal = $id_member ?? ($member ? $member->id : null);
 // Log::info('Final id_member untuk create pembelian: ' . $idMemberFinal);
 //         // Simpan data pembelian
-        Pembelian::create([
-     'id_member' => $idMemberFinal,
-            'id_detail_pembelian' => json_encode($detailPembelianIds),
-            'total_harga' => $totalBeli,
-            'total_bayar' => $totalBayar,
-            'kembalian' => $kembalian,
-            'tanggal_penjualan' => now(),
-        ]);
-        
+$pembelian =  Pembelian::create([
+    'id_member' => $idMemberFinal,
+    'id_detail_pembelian' => $detailPembelianId, // ⬅ hanya satu id, bukan array
+    'total_harga' => $totalBeli,
+    'total_bayar' => $totalBayar,
+    'kembalian' => $kembalian,
+    'tanggal_penjualan' => now(),
+]);
+
+Log::info('Pembelian berhasil dibuat', [
+    'id_pembelian' => $pembelian->id,
+    'id_member' => $idMemberFinal,
+    'id_detail_pembelian' => $detailPembelianId,
+    'total_harga' => $totalBeli,
+    'total_bayar' => $totalBayar,
+    'kembalian' => $kembalian,
+]);
+
 
         DB::commit();
+        if ($pembelian && $pembelian->id) {
 
         return response()->json([
             'success' => true,
@@ -231,8 +270,17 @@ if ($usePoin) {
             // Bisa juga mengirimkan data point yang terpakai dan saldo point saat ini
             'poin_terpakai' => $poinTerpakai,
             'poin_saat_ini' => $member->point,
+            'id_pembelian' => $pembelian->id, // ⬅ kirim id pembelian
         ]);
 
+    } else {
+        // Gagal membuat pembelian
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menyimpan data pembelian.',
+        ], 500);
+    }
+        // return redirect()->route('struk', ['id' => $pembelian->id]);
     } catch (\Exception $e) {
         DB::rollBack();
         // Log::error('Gagal menyimpan pembelian: ' . $e->getMessage());

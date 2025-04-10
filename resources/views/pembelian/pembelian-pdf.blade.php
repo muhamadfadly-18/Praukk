@@ -2,42 +2,72 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Pembelian</title>
+    <title>Bukti Pembayaran</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
-        .container { width: 100%; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        table, th, td { border: 1px solid black; }
-        th, td { padding: 8px; text-align: left; }
-        th { background-color: #007bff; color: white; }
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f0f0f0; }
+        .total { text-align: right; font-weight: bold; }
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 style="text-align: center;">Detail Pembelian</h2>
-        <table>
+
+    <h2>Bukti Pembayaran</h2>
+
+    <p>Nama Produk: {{ $pembelian->detail->produk->name ?? '-' }}</p>
+    <p>Member Status: 
+        @if($pembelian->member && $pembelian->member->nam3)
+            Members
+        @else
+            No Members
+        @endif
+    </p>
+    <p>No. HP: {{ $pembelian->member->no_hp ?? '-' }}</p>
+    <p>Bergabung Sejak: {{ $pembelian->member->created_at ?? '-' }}</p>
+    <p>Poin Member: {{ $pembelian->member->point ?? '-' }}</p>
+
+    <table>
+        <thead>
             <tr>
-                <th>ID</th>
-                <td>{{ $pembelian->id }}</td>
+                <th>Nama Produk</th>
+                <th>QTY</th>
+                <th>Harga</th>
+                <th>Sub Total</th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach ($dataGabungan as $item)
             <tr>
-                <th>Nama Pelanggan</th>
-                <td>{{ $pembelian->nama_pelanggan }}</td>
+                <td>{{ $item['produk']->name ?? '-' }}</td>
+                <td>{{ $item['qty'] }}</td>
+                <td>Rp. {{ number_format($item['harga'], 0, ',', '.') }}</td>
+                <td>Rp. {{ number_format($item['qty'] * $item['harga'], 0, ',', '.') }}</td>
             </tr>
-            <tr>
-                <th>Tanggal Penjualan</th>
-                <td>{{ $pembelian->tanggal_penjualan }}</td>
-            </tr>
-            <tr>
-                <th>Total Harga</th>
-                <td>Rp {{ number_format($pembelian->total_belanja, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <th>Dibuat Oleh</th>
-                <td>{{ $pembelian->user_id }}</td>
-            </tr>
-        </table>
+            @endforeach
+        </tbody>
+    </table>
+    
+
+    <table style="margin-top: 20px;">
+        <tr>
+            <td>Poin Digunakan</td>
+            <td class="total">{{ $pembelian->poin_digunakan ?? '0' }}</td>
+        </tr>
+        <tr>
+            <td>Total Harga</td>
+            <td class="total">Rp. {{ number_format($pembelian->total_harga, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td>Jumlah Dibayar</td>
+            <td class="total">Rp. {{ number_format($pembelian->total_bayar, 0, ',', '.') }}</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        Terima kasih telah berbelanja bersama kami.<br>
+        Bukti ini dicetak secara otomatis dan tidak memerlukan tanda tangan.
     </div>
 </body>
 </html>

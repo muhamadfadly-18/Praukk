@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\MembersController;
+use App\Http\Controllers\DashboardController;
 use App\Exports\PembelianExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Member;
@@ -17,9 +18,7 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
@@ -45,3 +44,5 @@ Route::get('/members', [MembersController::class, 'index'])->name('members.index
 Route::post('/member/store', [MembersController::class, 'store'])->name('member.store');
 
 Route::get('/struk', [MembersController::class, 'struk'])->name('struk');
+Route::get('/pembayaran/pdf', [MembersController::class, 'unduhPDF'])->name('pembayaran.unduh');
+

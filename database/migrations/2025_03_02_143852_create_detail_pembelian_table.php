@@ -9,9 +9,9 @@ return new class extends Migration {
     {
         Schema::create('detail_pembelians', function (Blueprint $table) {
             $table->id(); 
-            $table->bigInteger('id_produk');
-            $table->integer('harga');
-            $table->integer('qty');
+            $table->jsonb('id_produk');
+            $table->jsonb('harga');
+            $table->jsonb('qty');
             $table->timestamps();
         });
         

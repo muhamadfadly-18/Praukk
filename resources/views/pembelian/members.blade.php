@@ -37,7 +37,7 @@
                             <input type="hidden" name="harga[]" value="{{ $produk->harga_beli }}">
                             <input type="hidden" name="qty[]" value="{{ $produk->jumlah }}">
                         @endforeach
-
+                        {{-- <input type="hidden" name="id" id="id" value="{{ $pembelian->id ?? 0 }}"> --}}
                         <input type="hidden" name="total_harga"
                             value="{{ $produks->sum(fn($p) => $p->harga_beli * $p->jumlah) }}">
                         <input type="hidden" name="total_bayar" id="total_bayar" value="{{ $data['total_bayar'] }}">
@@ -104,6 +104,7 @@
                 const noHpInput = document.getElementById('no_hp');
                 const totalHargaElement = document.querySelector('.font-bold.text-lg span');
                 const btnSubmit = document.getElementById('btnSubmit');
+                // const id = document.getElementById('id').value;
                 const idMemberInput = document.getElementById('id_member');
                 const idMember = idMemberInput ? idMemberInput.value : null;
                 const rawValue = document.getElementById('total_bayar').value;
@@ -171,6 +172,7 @@
                     
                     let poinDidapat = totalBayar > 100000 ? 100 : 0;
 
+                    
                     const dataToSend = {
                         id_member: idMember,
                         name,
@@ -181,6 +183,7 @@
                         harga: harga,
                         total_bayar: totalBayar,
                         poin_didapat: poinDidapat,
+
                     };
 
                     console.log("Data yang dikirim:", dataToSend);
@@ -207,8 +210,17 @@
 
                             if (data.success) {
                                 alert('Pembelian berhasil');
-                                const queryString = new URLSearchParams(dataToSend).toString();
-                                window.location.href = `/struk?${queryString}`;
+                                   
+    // Tambahkan id pembelian KE dataToSend dulu
+    dataToSend.id = data.id_pembelian;
+
+
+// Baru buat query string setelahnya
+const queryString = new URLSearchParams(dataToSend).toString();
+
+// Redirect ke halaman struk dengan query lengkap
+window.location.href = `/struk?${queryString}`;
+
                             } else {
                                 alert(`Gagal: ${data.message}`);
                             }

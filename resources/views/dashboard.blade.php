@@ -41,87 +41,88 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Chart 1: Line Chart (Forecast)
-    var optionsLine = {
-        series: [{
-            name: 'Sales',
-            data: [4, 3, 10, 9, 29, 19, 22, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5]
-        }],
-        chart: {
-            height: 350,
-            type: 'line',
-        },
-        stroke: {
-            width: 5,
-            curve: 'smooth'
-        },
-        xaxis: {
-            type: 'datetime',
-            categories: [
-                '1/11/2000', '2/11/2000', '3/11/2000', '4/11/2000', '5/11/2000', 
-                '6/11/2000', '7/11/2000', '8/11/2000', '9/11/2000', '10/11/2000', 
-                '11/11/2000', '12/11/2000', '1/11/2001', '2/11/2001', '3/11/2001',
-                '4/11/2001', '5/11/2001', '6/11/2001'
-            ],
-            tickAmount: 10,
-            labels: {
-                formatter: function(value, timestamp, opts) {
-                    return opts.dateFormatter(new Date(timestamp), 'dd MMM')
-                }
-            }
-        },
-        title: {
-            text: 'Forecast',
-            align: 'left',
-            style: {
-                fontSize: "16px",
-                color: '#666'
-            }
-        },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shade: 'dark',
-                gradientToColors: ['#FDD835'],
-                shadeIntensity: 1,
-                type: 'horizontal',
-                opacityFrom: 1,
-                opacityTo: 1,
-                stops: [0, 100, 100, 100]
-            },
+    var namaProduk = @json($namaProduk);
+    var jumlahKeluar = @json($jumlahKeluar);
+</script>
+
+<script>
+  // Chart 1: Line Chart (Forecast/Jumlah Keluar)
+var optionsLine = {
+    series: [{
+        name: 'Produk Keluar',
+        data: jumlahKeluar
+    }],
+    chart: {
+        height: 350,
+        type: 'line',
+    },
+    stroke: {
+        width: 5,
+        curve: 'smooth'
+    },
+    xaxis: {
+        categories: namaProduk, // X axis pakai nama produk
+        tickAmount: 10,
+        labels: {
+            rotate: -45
         }
-    };
+    },
+    title: {
+        text: 'Grafik Produk Keluar Hari Ini (Line)',
+        align: 'left',
+        style: {
+            fontSize: "16px",
+            color: '#666'
+        }
+    },
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shade: 'dark',
+            gradientToColors: ['#FDD835'],
+            shadeIntensity: 1,
+            type: 'horizontal',
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 100, 100, 100]
+        },
+    }
+};
+
 
     var chartLine = new ApexCharts(document.querySelector("#chart-line"), optionsLine);
     chartLine.render();
 
     // Chart 2: Polar Area Chart (Diletakkan di kiri bawah)
-    var optionsPolar = {
-        series: [14, 23, 21, 17, 15, 10, 12, 17, 21],
-        chart: {
-            type: 'polarArea',
-            width: 300,
-            height: 300
-        },
-        stroke: {
-            colors: ['#fff']
-        },
-        fill: {
-            opacity: 0.8
-        },
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                chart: {
-                    width: 250,
-                    height: 250
-                },
-                legend: {
-                    position: 'bottom'
-                }
+   // Chart 2: Polar Area Chart
+var optionsPolar = {
+    series: jumlahKeluar,
+    labels: namaProduk, // <-- ini wajib supaya tahu nama produknya
+    chart: {
+        type: 'polarArea',
+        width: 300,
+        height: 300
+    },
+    stroke: {
+        colors: ['#fff']
+    },
+    fill: {
+        opacity: 0.8
+    },
+    responsive: [{
+        breakpoint: 480,
+        options: {
+            chart: {
+                width: 250,
+                height: 250
+            },
+            legend: {
+                position: 'bottom'
             }
-        }]
-    };
+        }
+    }]
+};
+
 
     var chartPolar = new ApexCharts(document.querySelector("#chart-polar"), optionsPolar);
     chartPolar.render();
