@@ -1,24 +1,51 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Bukti Pembayaran</title>
     <style>
-        body { font-family: sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f0f0f0; }
-        .total { text-align: right; font-weight: bold; }
-        .footer { margin-top: 30px; text-align: center; font-size: 12px; }
+        body {
+            font-family: sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .total {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+        }
     </style>
 </head>
+
 <body>
 
     <h2>Bukti Pembayaran</h2>
 
     <p>Nama Produk: {{ $pembelian->detail->produk->name ?? '-' }}</p>
-    <p>Member Status: 
-        @if($pembelian->member && $pembelian->member->nam3)
+    <p>Member Status:
+        @if ($pembelian->member && $pembelian->member->nam3)
             Members
         @else
             No Members
@@ -39,16 +66,16 @@
         </thead>
         <tbody>
             @foreach ($dataGabungan as $item)
-            <tr>
-                <td>{{ $item['produk']->name ?? '-' }}</td>
-                <td>{{ $item['qty'] }}</td>
-                <td>Rp. {{ number_format($item['harga'], 0, ',', '.') }}</td>
-                <td>Rp. {{ number_format($item['qty'] * $item['harga'], 0, ',', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $item['produk']->name ?? '-' }}</td>
+                    <td>{{ $item['qty'] }}</td>
+                    <td>Rp. {{ number_format($item['harga'], 0, ',', '.') }}</td>
+                    <td>Rp. {{ number_format($item['qty'] * $item['harga'], 0, ',', '.') }}</td>
+                </tr>
             @endforeach
         </tbody>
     </table>
-    
+
 
     <table style="margin-top: 20px;">
         <tr>
@@ -70,4 +97,5 @@
         Bukti ini dicetak secara otomatis dan tidak memerlukan tanda tangan.
     </div>
 </body>
+
 </html>

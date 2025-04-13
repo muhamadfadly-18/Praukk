@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="container mx-auto p-6 flex space-x-6">
-        
+
         <div class="w-1/2 border p-4 rounded-lg shadow ">
             <div class="w-full border p-4 rounded-lg shadow table-container">
                 <table class="w-full border-collapse">
@@ -56,7 +56,7 @@
             </div>
 
 
-            
+
             <input type="hidden" name="id_member" id="id_member" value="{{ $member_id }}">
 
             <div class="w-1/2 border p-4 rounded-lg shadow">
@@ -65,7 +65,7 @@
                     <input type="text" id="name" class="w-full p-2 border rounded-lg" value="{{ $name ?? '' }}"
                         placeholder="Masukkan nama">
                 </div>
-                <input type="hidden" id="no_hp" value="{{ $no_hp ?? '' }}"> 
+                <input type="hidden" id="no_hp" value="{{ $no_hp ?? '' }}">
 
                 <div class="mb-4">
                     <label class="block font-bold mb-1">Poin</label>
@@ -109,7 +109,7 @@
                 const idMember = idMemberInput ? idMemberInput.value : null;
                 const rawValue = document.getElementById('total_bayar').value;
                 const totalBayar = Number(
-                    rawValue.replace(/[^0-9]/g, '') 
+                    rawValue.replace(/[^0-9]/g, '')
                 );
 
 
@@ -118,11 +118,11 @@
                 let totalHarga = parseInt(totalHargaElement.textContent.replace(/Rp\.|\./g, '').trim()) || 0;
                 let point = parseInt(poinInput.value) || 0;
 
-                
+
                 const numberWithCommas = (x) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
 
-                
+
                 noHpInput.addEventListener('blur', () => {
                     const noHp = noHpInput.value.trim();
                     if (noHp) {
@@ -130,7 +130,7 @@
                     }
                 });
 
-                
+
                 btnSubmit.addEventListener('click', () => {
                     const name = document.getElementById('name').value.trim();
                     const noHp = noHpInput.value.trim();
@@ -140,11 +140,11 @@
                         return;
                     }
 
-                    
-                    const poinYangDigunakan = 150; 
+
+                    const poinYangDigunakan = 150;
                     if (gunakanPoinCheckbox.checked) {
                         if (point >= poinYangDigunakan && totalHarga > 0) {
-                            
+
                             totalHarga -= poinYangDigunakan;
                             point -= poinYangDigunakan;
                         } else {
@@ -153,26 +153,26 @@
                         }
                     }
 
-                    
+
                     totalHargaElement.textContent = `Rp. ${numberWithCommas(totalHarga)}`;
                     poinInput.value = point;
 
-                    
+
                     let idProduk = [];
                     let qty = [];
                     let harga = [];
 
                     document.querySelectorAll("table tbody tr").forEach(row => {
                         idProduk.push(row.getAttribute("data-id"));
-                        qty.push(parseInt(row.children[1].textContent.trim())); 
+                        qty.push(parseInt(row.children[1].textContent.trim()));
                         harga.push(parseInt(row.children[2].textContent.replace(/Rp\.|\./g, '')
-                    .trim())); 
+                            .trim()));
                     });
 
-                    
+
                     let poinDidapat = totalBayar > 100000 ? 100 : 0;
 
-                    
+
                     const dataToSend = {
                         id_member: idMember,
                         name,
@@ -198,7 +198,7 @@
                             body: JSON.stringify(dataToSend),
                         })
                         .then(async response => {
-                            const text = await response.text(); 
+                            const text = await response.text();
                             console.log("Raw response text:", text);
 
                             let data;
@@ -210,16 +210,16 @@
 
                             if (data.success) {
                                 alert('Pembelian berhasil');
-                                   
-    // Tambahkan id pembelian KE dataToSend dulu
-    dataToSend.id = data.id_pembelian;
+
+                                // Tambahkan id pembelian KE dataToSend dulu
+                                dataToSend.id = data.id_pembelian;
 
 
-// Baru buat query string setelahnya
-const queryString = new URLSearchParams(dataToSend).toString();
+                                // Baru buat query string setelahnya
+                                const queryString = new URLSearchParams(dataToSend).toString();
 
-// Redirect ke halaman struk dengan query lengkap
-window.location.href = `/struk?${queryString}`;
+                                // Redirect ke halaman struk dengan query lengkap
+                                window.location.href = `/struk?${queryString}`;
 
                             } else {
                                 alert(`Gagal: ${data.message}`);

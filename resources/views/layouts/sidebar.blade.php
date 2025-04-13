@@ -1,6 +1,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="{{ url('/') }}" class="brand-link">
-        <img src="{{ asset('vendor/adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3">
+        <img src="{{ asset('vendor/adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo"
+            class="brand-image img-circle elevation-3">
         <span class="brand-text font-weight-light">Kasir</span>
     </a>
 
@@ -16,7 +17,7 @@
                 @php
                     use App\Models\User;
                 @endphp
-                
+
                 @if (Auth::user()->role == 'admin')
                     <li class="nav-item">
                         <a href="{{ url('/produk') }}" class="nav-link">
@@ -36,21 +37,19 @@
                             <p>Users</p>
                         </a>
                     </li>
-
                 @elseif (Auth::user()->role == 'kasir')
-
-                <li class="nav-item">
-                    <a href="{{ url('/produk') }}" class="nav-link">
-                        <i class="nav-icon fas fa-box"></i>
-                        <p>Produk</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('/pembelian') }}" class="nav-link">
-                        <i class="nav-icon fas fa-shopping-cart"></i>
-                        <p>Pembelian</p>
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a href="{{ url('/produk') }}" class="nav-link">
+                            <i class="nav-icon fas fa-box"></i>
+                            <p>Produk</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url('/pembelian') }}" class="nav-link">
+                            <i class="nav-icon fas fa-shopping-cart"></i>
+                            <p>Pembelian</p>
+                        </a>
+                    </li>
                 @endif
             </ul>
         </nav>

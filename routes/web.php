@@ -36,7 +36,7 @@ Route::get('/add/produk', [PembelianController::class, 'add_produk'])->name('add
 Route::get('/checkout', [PembelianController::class, 'checkout'])->name('checkout');
 Route::post('/simpan-pembelian', [PembelianController::class, 'simpanDetail']);
 Route::post('/pembelian/simpan', [PembelianController::class, 'simpanPembelian'])->name('pembelian.simpan');
-Route::post('/checkout/cek-member', [PembelianController::class, 'cekMember'])->name('checkout.cekMember');
+// Route::post('/checkout/cek-member', [PembelianController::class, 'cekMember'])->name('checkout.cekMember');
 Route::post('/checkout/simpan-detail', [PembelianController::class, 'simpanDetail'])->name('checkout.simpanDetail');
 
 

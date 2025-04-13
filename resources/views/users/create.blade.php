@@ -12,12 +12,13 @@
                     @csrf
                     <div class="mb-3">
                         <label for="name">Nama</label>
-                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" required>
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                            required>
                         @error('name')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
-                        
+
                     <div class="mb-3">
                         <label for="email">Email</label>
                         <input type="email" name="email" class="form-control" required>
@@ -25,7 +26,8 @@
 
                     <div class="mb-3">
                         <label for="password">Password</label>
-                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
+                        <input type="password" name="password"
+                            class="form-control @error('password') is-invalid @enderror" required>
                         @error('password')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -52,25 +54,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("addUserForm").addEventListener("submit", function (e) {
-        e.preventDefault(); // Mencegah submit form langsung
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("addUserForm").addEventListener("submit", function(e) {
+            e.preventDefault(); // Mencegah submit form langsung
 
-        Swal.fire({
-            title: "Apakah Anda yakin ingin menyimpan?",
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: "Simpan",
-            denyButtonText: `Jangan Simpan`
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire("Tersimpan!", "", "success").then(() => {
-                    e.target.submit(); // Submit form setelah user mengonfirmasi
-                });
-            } else if (result.isDenied) {
-                Swal.fire("Perubahan tidak disimpan", "", "info");
-            }
+            Swal.fire({
+                title: "Apakah Anda yakin ingin menyimpan?",
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: "Simpan",
+                denyButtonText: `Jangan Simpan`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire("Tersimpan!", "", "success").then(() => {
+                        e.target.submit(); // Submit form setelah user mengonfirmasi
+                    });
+                } else if (result.isDenied) {
+                    Swal.fire("Perubahan tidak disimpan", "", "info");
+                }
+            });
         });
     });
-});
 </script>

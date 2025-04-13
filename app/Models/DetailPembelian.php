@@ -14,23 +14,25 @@ class DetailPembelian extends Model
 
     protected $table = 'detail_pembelians'; // Sesuaikan dengan tabel detail pembelian
 
-   
+
     protected $fillable = [
-        'id_produk', 'harga', 'qty'
+        'id_produk',
+        'harga',
+        'qty'
     ];
 
     protected $casts = [
         'id_produk' => 'array',  // Mengonversi kolom 'id_produk' menjadi array
-        'harga'     => 'array',  // Mengonversi kolom 'harga' menjadi array
-        'qty'       => 'array',  // Mengonversi kolom 'qty' menjadi array
+        'harga' => 'array',  // Mengonversi kolom 'harga' menjadi array
+        'qty' => 'array',  // Mengonversi kolom 'qty' menjadi array
     ];
 
-  
+
 
     public function produk()
     {
         return $this->belongsTo(Produk::class, 'id_produk');
-    }    
+    }
     public function pembelian()
     {
         return $this->belongsTo(Pembelian::class, 'pembelian_id');

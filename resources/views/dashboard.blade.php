@@ -3,151 +3,211 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Dashboard</h3>
-            </div>
-            <div class="card-body">
-                <p>Selamat datang di Admin Panel!</p>
-                
-                <!-- Chart 1: Line Chart -->
-                <div id="chart-line"></div>
+    @if (Auth::User()->role == 'admin')
+        <div class="row">
+            <div class="col-md-12 mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Dashboard</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Selamat datang di Admin Panel!</p>
 
-                <!-- Chart 2: Polar Area Chart (Diletakkan di kiri bawah) -->
-                <div id="chart-container">
-                    <div id="chart-polar"></div>
+                        <!-- Chart 1: Line Chart -->
+                        <!-- Wrapper untuk kedua chart -->
+                        <div id="chart-wrapper">
+                            <!-- Bar Chart -->
+                            <div id="chart"></div>
+
+                            <!-- Pie Chart (Polar) -->
+                            <div id="chart-polar"></div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    @elseif (Auth::user()->role == 'kasir')
+        <!-- Tampilkan dashboard kasir -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Dashboard Kasir</h3>
+            </div>
+            <div class="card-body">
+                <p>Jumlah pembelian hari ini: <strong>{{ $jumlahPembelian }}</strong></p>
+            </div>
+        </div>
+    @else
+        <h1>Anda tidak memiliki akses ke dashboard ini.</h1>
+    @endif
 @endsection
 
+
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<style>
-    #chart-container {
-        display: flex;
-        justify-content: flex-start; /* Menyusun ke kiri */
-        margin-top: 20px; /* Jarak dari chart pertama */
-    }
-
-    #chart-polar {
-        width: 300px; /* Ukuran lebih kecil agar proporsional */
-        height: 300px;
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    var namaProduk = @json($namaProduk);
-    var jumlahKeluar = @json($jumlahKeluar);
-</script>
-
-<script>
-  // Chart 1: Line Chart (Forecast/Jumlah Keluar)
-var optionsLine = {
-    series: [{
-        name: 'Produk Keluar',
-        data: jumlahKeluar
-    }],
-    chart: {
-        height: 350,
-        type: 'line',
-    },
-    stroke: {
-        width: 5,
-        curve: 'smooth'
-    },
-    xaxis: {
-        categories: namaProduk, // X axis pakai nama produk
-        tickAmount: 10,
-        labels: {
-            rotate: -45
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        #chart-wrapper {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            /* Biar responsif kalau layar kecil */
+            margin-top: 20px;
         }
-    },
-    title: {
-        text: 'Grafik Produk Keluar Hari Ini (Line)',
-        align: 'left',
-        style: {
-            fontSize: "16px",
-            color: '#666'
+
+        #chart {
+            width: 500px;
         }
-    },
-    fill: {
-        type: 'gradient',
-        gradient: {
-            shade: 'dark',
-            gradientToColors: ['#FDD835'],
-            shadeIntensity: 1,
-            type: 'horizontal',
-            opacityFrom: 1,
-            opacityTo: 1,
-            stops: [0, 100, 100, 100]
-        },
-    }
-};
+
+        #chart-polar {
+            width: 400px;
+            /* Lebih besar */
+            height: 400px;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-    var chartLine = new ApexCharts(document.querySelector("#chart-line"), optionsLine);
-    chartLine.render();
-
-    // Chart 2: Polar Area Chart (Diletakkan di kiri bawah)
-   // Chart 2: Polar Area Chart
-var optionsPolar = {
-    series: jumlahKeluar,
-    labels: namaProduk, // <-- ini wajib supaya tahu nama produknya
-    chart: {
-        type: 'polarArea',
-        width: 300,
-        height: 300
-    },
-    stroke: {
-        colors: ['#fff']
-    },
-    fill: {
-        opacity: 0.8
-    },
-    responsive: [{
-        breakpoint: 480,
-        options: {
-            chart: {
-                width: 250,
-                height: 250
+    <script>
+        // Chart 1: Line Chart (Forecast/Jumlah Keluar)
+        var options = {
+            series: [{
+                name: 'Servings',
+                data: @json($pembelians->pluck('total_pembelian')) // Data untuk jumlah pembelian
+            }],
+            annotations: {
+                points: [{
+                    x: '2023-04-12', // Tanggal contoh, bisa diubah sesuai dengan kebutuhan
+                    seriesIndex: 0,
+                    label: {
+                        borderColor: '#775DD0',
+                        offsetY: 0,
+                        style: {
+                            color: '#fff',
+                            background: '#775DD0',
+                        },
+                        text: 'This is a date annotation',
+                    }
+                }]
             },
-            legend: {
-                position: 'bottom'
+            chart: {
+                height: 350,
+                type: 'bar',
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 10,
+                    columnWidth: '50%',
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                width: 0
+            },
+            grid: {
+                row: {
+                    colors: ['#fff', '#f2f2f2']
+                }
+            },
+            xaxis: {
+                labels: {
+                    rotate: -45
+                },
+                categories: @json($pembelians->pluck('tanggal')) // Data untuk tanggal
+                    ,
+                tickPlacement: 'on'
+            },
+            yaxis: {
+                title: {
+                    text: 'Servings',
+                },
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shade: 'light',
+                    type: "horizontal",
+                    shadeIntensity: 0.25,
+                    gradientToColors: undefined,
+                    inverseColors: true,
+                    opacityFrom: 0.85,
+                    opacityTo: 0.85,
+                    stops: [50, 0, 100]
+                },
             }
-        }
-    }]
-};
+        };
 
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+        // Chart 2: Polar Area Chart (Diletakkan di kiri bawah)
+        // Chart 2: Polar Area Chart
+        // Ambil data yang sudah dikirim dari controller
+        var detailPembelains = @json($detailPembelains);
 
-    var chartPolar = new ApexCharts(document.querySelector("#chart-polar"), optionsPolar);
-    chartPolar.render();
+        console.log(detailPembelains);
 
-
-
-
-    @if(session('success'))
-        Swal.fire({
-            title: "Berhasil!",
-            text: "{{ session('success') }}",
-            icon: "success",
-            confirmButtonText: "OK"
+        // Extract the 'total_qty' values and product names for the chart
+        var seriesData = Object.values(detailPembelains).map(function(item) {
+            return item.total_qty; // Ambil nilai total_qty untuk digunakan di chart
         });
-    @endif
 
-    @if(session('error'))
-        Swal.fire({
-            title: "Gagal!",
-            text: "{{ session('error') }}",
-            icon: "error",
-            confirmButtonText: "OK"
+        var labelsData = Object.values(detailPembelains).map(function(item) {
+            return item.produk_name; // Ambil nama produk untuk digunakan sebagai label
         });
-    @endif
+
+        console.log(seriesData);
+        console.log(labelsData);
+
+        var options = {
+            series: seriesData,
+            chart: {
+                type: 'polarArea',
+            },
+            stroke: {
+                colors: ['#fff']
+            },
+            fill: {
+                opacity: 0.8
+            },
+            labels: labelsData, // Menggunakan nama produk sebagai label
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart-polar"), options);
+        chart.render();
 
 
-</script>
+
+
+        @if (session('success'))
+            Swal.fire({
+                title: "Berhasil!",
+                text: "{{ session('success') }}",
+                icon: "success",
+                confirmButtonText: "OK"
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                title: "Gagal!",
+                text: "{{ session('error') }}",
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+        @endif
+    </script>
 @endpush
